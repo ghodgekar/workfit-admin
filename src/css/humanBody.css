@@ -1,0 +1,15 @@
+.human-body {
+    
+  }
+  
+  .human-body svg:hover {
+    cursor: pointer;
+  }
+  
+  .human-body svg path:hover {
+    fill: #db0f0f;
+  }
+  
+  .human-body svg {
+    fill: rgb(75, 72, 72);
+  }

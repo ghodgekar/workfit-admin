@@ -1,0 +1,11 @@
+.register_element{
+    margin-top:10px; 
+}
+
+ion-label.register_input {
+    font-size: 20px !important;
+}
+
+#register_button{
+    margin:20px;
+}
