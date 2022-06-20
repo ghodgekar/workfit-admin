@@ -1,0 +1,13 @@
+.action_col{
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.nextui-table-hidden-row{
+    display: none;
+}
+
+
+.viewTable{
+    margin: 25px;
+}

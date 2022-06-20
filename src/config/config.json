@@ -1,4 +1,4 @@
 {
-    "backend_url":"http://localhost:8000"
-
+  "backend_url" : "http://localhost:8000",
+  "Base_url" : "http://localhost:3000"
 }
