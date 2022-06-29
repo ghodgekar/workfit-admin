@@ -279,7 +279,7 @@ export default function Exercise() {
                 setbodyPartIdOptions(bodyIdResp.data)
             }
 
-            let videoResp = await videoList("dropdown")
+            let videoResp = await videoList({ callFor: "dropdown" })
             console.log("videoResp", videoResp);
             if (videoResp.data) {
                 setvideoOptions(videoResp.data)
@@ -376,7 +376,7 @@ export default function Exercise() {
                 if (resp.status) await callListFunction()
             }
             if (type == "update") {
-                request.exercise_id=dataObj.exercise_id
+                request.exercise_id = dataObj.exercise_id
                 await updateApiCall(request)
             }
             resetDropdownValues()

@@ -210,8 +210,12 @@ export default function Video() {
             let request = {
                 ...dataObj,
             };
-            console.log("request------------------", request);
+            console.log("request------------------", request.video_iframe);
+            console.log("split");
+            let videoIframe = await processIframe(request.video_iframe)
+
             request.video_type = validate.videoType
+            request.video_iframe = videoIframe
 
             delete request.errors
             if (type == "add") {
@@ -226,6 +230,30 @@ export default function Video() {
             setisAddFormVisible(false);
             setisEditMode(false)
         }
+    }
+
+    const processIframe = async (iframe) => {
+        let splitVal = iframe.split(" ");
+        let srcIndex = splitVal.findIndex((val) => { return val.includes("src=") });
+        let srcArr = splitVal.find((val) => { return val.includes("src=") });
+        console.log("srcArr", srcArr);
+        let url = srcArr.split("=")
+        let splitSrc = url[1].split("?");
+        console.log("srcArr", splitSrc);
+
+        console.log(" url[1]", typeof url[1]);
+        splitSrc[0] = splitSrc[0].slice(1, -1)
+        let videoStrArr = splitSrc[0].split("/")
+        let videoId = videoStrArr[videoStrArr.length - 1]
+        let urlString = splitSrc[0] + "?rel=0&autoplay=1&controls=0&disablekb=1&loop=1" + "&playlist=" + videoId + "&playsinline=1&iv_load_policy=3&mute=1&modestbranding=1&related=0&showinfo=0"
+        // concat("?autoplay=1&loop=1&modestbranding=1&rel=0")
+        console.log("srcArr2222222", urlString);
+        let finalSrc = 'src="' + urlString + '"';
+        console.log("finalSrc", finalSrc);
+        splitVal[srcIndex] = finalSrc;
+        let iFrame = splitVal.join(" ")
+        console.log("iFrame", iFrame);
+        return iFrame
     }
 
     const validateForm = async () => {

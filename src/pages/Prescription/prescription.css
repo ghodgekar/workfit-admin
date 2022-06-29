@@ -1,0 +1,159 @@
+.flexClass {
+    display: flex;
+    flex-direction: row;
+}
+
+.templateHead {
+    justify-content: space-between;
+    max-width: 100vw;
+    border-bottom: 1px solid #726f6f;
+}
+
+
+
+#doctor_logo {
+    width: 70%;
+    height: 135px;
+}
+
+
+#poweredText {
+    margin: 0px 10px;
+    font-size: 21px;
+}
+
+.prescriptionBody {
+    margin: 10px 25px;
+}
+
+.adjunct {
+    display: flex;
+}
+
+.adjunct ul {
+    list-style: none;
+    padding-left: 10px;
+}
+
+li.adjunct_li {
+    padding: 0px;
+    margin-bottom: 7px;
+}
+
+.exercise h5 {
+    font-size: 19px;
+    margin: 0px;
+}
+
+#sign {
+    width: 200px;
+    height: 80px;
+}
+
+#doctorName {
+    font-size: 21px;
+}
+
+.footer  {
+    /* float: right; */
+    display: flex;
+    justify-content: space-between;
+}
+
+#exerciseHead {
+    font-size: 22px;
+    text-decoration: underline;
+}
+
+.emailTemplate {
+    border: 1px solid #c7c2c2;
+    margin: 13px 156px;
+    padding: 15px;
+}
+
+.exercise_video iframe {
+    height: 175px;
+    width: 301px;
+    z-index: 1;
+    position: absolute;
+    bottom: 5px;
+    pointer-events: none;
+}
+
+.exercise_heading {
+    margin: 16px 0px;
+}
+
+.instructionSpace {
+    margin: 0px 5px;
+    color: #1093f3;
+    cursor: pointer;
+}
+
+
+@media only screen and (max-width: 988px) {
+    .emailTemplate{
+        margin: 5px;
+    }
+    #poweredText {
+        margin: 0px 5px;
+        font-size: 17px;
+        width: 30%;
+        text-align: right;
+    }
+    #sign {
+        width: 113px;
+        height: 57px;
+    }
+    #doctorName {
+        font-size: 15px;
+    }
+}
+
+@media only screen and (max-width: 768px) {
+    #poweredText {
+        margin: 0px;
+        font-size: 10px;
+        width: 30%;
+        text-align: right;
+    }
+    #sign {
+        width: 90px;
+        height: 57px;
+    }
+    .bodyElement p{
+        font-size: 15px;
+    }
+    
+    #exerciseHead {
+        font-size: 15px;
+        text-decoration: underline;
+    }
+    .instructionSpace {
+        margin: 0px 2px;
+        color: #1093f3;
+        font-size: 11px;
+        cursor: pointer;
+    }
+    .exercise h5 {
+        font-size: 15px;
+        margin: 0px;
+    }
+    .adjunct ul {
+        list-style: none;
+        padding-left: 5px;
+    }
+    
+    li.adjunct_li {
+        flex-direction: column;
+        padding: 0px;
+        margin-bottom: 7px;
+    }
+    .exercise_heading {
+        flex-direction: column;
+        font-size: 10px;
+    }
+    #doctorName,.liElement {
+        font-size: 14px;
+    }
+}

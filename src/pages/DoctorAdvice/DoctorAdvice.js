@@ -274,7 +274,7 @@ export default function DoctorAdvice() {
             isError = true
             errObj.advice_name.isError = true
         }
-        if (!bodyPartId) {
+        if (adviceType=="imaging"&&!bodyPartId) {
             isError = true
             errObj.advice_body_part_id.isError = true
         }

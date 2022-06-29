@@ -22,6 +22,9 @@ import Video from "./pages/Video/Video";
 import Exercise from "./pages/Exercise/Exercise";
 import Subscription from "./pages/Subscription/Subscription";
 import Logout from "./pages/Logout/Logout";
+import ExerciseTrack from "./pages/ExerciseTrack/ExerciseTrack";
+import Prescription from "./pages/Prescription/Prescription";
+
 
 function App() {
 
@@ -46,11 +49,11 @@ function App() {
             <Route path="/exercise" element={<Exercise />} />
             <Route path="/subscription" element={<Subscription />} />
             <Route path="/logout" element={<Logout />} />
-
-            <Route path="*" element={<PageNotfound />} />
-
           </Route>
         </Route>
+        <Route path="/exerciseTrack" element={<ExerciseTrack/>} />
+        <Route path="/Prescription" element={<Prescription/>} />
+        <Route path="*" element={<PageNotfound />} />
       </Routes>
 
   );

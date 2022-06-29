@@ -1,6 +1,7 @@
 import { Text, Modal, Button } from '@nextui-org/react';
 import React from 'react'
 
+
 export default function IframeDemo(props) {
     const closeHandler = () => {
         props.setshowIframeModal(false)
@@ -22,7 +23,7 @@ export default function IframeDemo(props) {
                     </Text>
                 </Modal.Header>
                 <Modal.Body css={{margin:"auto"}}>
-                    <div dangerouslySetInnerHTML={{__html: props.iframe}}></div>
+                    <div  dangerouslySetInnerHTML={{__html: props.iframe}}></div>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button auto flat color="error" onClick={closeHandler}>

@@ -26,7 +26,7 @@ const getErrorObj = () => {
   let errorObject = {
     "body_part_name": { isError: false, msg: "Please Enter Valid Body Part Name" },
   }
-  // let's copy all user properties into it
+  // let's copy all properties into it
   for (let key in errorObject) {
     clone[key] = errorObject[key];
   }
