@@ -139,14 +139,15 @@ export default function Adjunct() {
       isError = true
       errObj.instruction_name.isError = true
     }
-    if (!adjunctObj.adjunct_time && adjunctObj.adjunct_time != 0) {
-      isError = true
-      errObj.adjunct_time.isError = true
-    }
-    if (!AdjTimeType) {
-      isError = true
-      errObj.adjunct_time_type.isError = true
-    }
+    // No error to throw for adjunct time type and adju
+    // if (!adjunctObj.adjunct_time && adjunctObj.adjunct_time != 0) {
+    //   isError = true
+    //   errObj.adjunct_time.isError = true
+    // }
+    // if (!AdjTimeType) {
+    //   isError = true
+    //   errObj.adjunct_time_type.isError = true
+    // }
     if (isError) {
       setadjunctObj((adjunctObj) => {
         return {

@@ -40,6 +40,7 @@ export default function ViewDataTable(props) {
             align="end"
             rowsPerPage={10}
             onPageChange={(page) => console.log({ page })}
+            total={Math.ceil(props.dataArr.length/10)}
           />}
       </Table>
     </div>
