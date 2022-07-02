@@ -22,8 +22,11 @@ import Video from "./pages/Video/Video";
 import Exercise from "./pages/Exercise/Exercise";
 import Subscription from "./pages/Subscription/Subscription";
 import Logout from "./pages/Logout/Logout";
+import PasswordChange from "./pages/PasswordChange/PasswordChange";
+import ConfirmPassword from "./pages/PasswordChange/ConfirmPassword";
 import ExerciseTrack from "./pages/ExerciseTrack/ExerciseTrack";
 import Prescription from "./pages/Prescription/Prescription";
+import Scale from "./pages/Scale/Scale";
 
 
 function App() {
@@ -31,6 +34,9 @@ function App() {
   return (
       <Routes>
         <Route path="/login" element={<Login/>} />
+        <Route  path="/lostpassword" element={<PasswordChange/>} />
+        <Route  path="/confirmPassword" element={<ConfirmPassword/>} />
+
         <Route path="/" element={<ProtectedRoute/>}>
           <Route path="/" element={<Layout />} >
             <Route index element={<LandingPage />} />
@@ -48,6 +54,8 @@ function App() {
             <Route path="/video" element={<Video />} />
             <Route path="/exercise" element={<Exercise />} />
             <Route path="/subscription" element={<Subscription />} />
+            <Route path="/scale" element={<Scale />} />
+
             <Route path="/logout" element={<Logout />} />
           </Route>
         </Route>

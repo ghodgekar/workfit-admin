@@ -159,7 +159,7 @@ export default function Prescription() {
                         {exerciseData.map((exercise, key) => {
                             console.log("exercise", config.backend_url + exercise.audioFilePath)
                             let audioPath = config.backend_url + exercise.audioFilePath
-                            audioPath = "/akshaynarkar31@gmail_com_push-ups_June_25_2022_audio.mp3"
+                            {/* audioPath = "/akshaynarkar31@gmail_com_push-ups_June_25_2022_audio.mp3" */}
 
                             return (
                                 <div className="exercise" key={key}>

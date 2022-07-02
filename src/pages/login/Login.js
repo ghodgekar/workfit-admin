@@ -42,6 +42,12 @@ export default function Login() {
     event.preventDefault();
   }
 
+function Changepassword(){
+  // localStorage.setItem("Login",true)
+  window.open(`${config.Base_url}/lostpassword`, "_self");
+
+}
+
   return (
     <div className="login-page">
       <div className="login-box">
@@ -98,7 +104,8 @@ export default function Login() {
           <p className="msgsuccess" id="msg">
             {msgsuccess}
           </p>
-          
+       <a> <p  onClick={()=>{Changepassword()}}>Lost your password?</p></a>
+
         </div>
       </div>
     </div>

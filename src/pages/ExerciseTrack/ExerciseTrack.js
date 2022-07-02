@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import getPrescriptionById from '../../api/Prescription_Api/getPrescriptionById'
 import videoList from '../../api/Video_Api/videoList'
 
-import { format } from 'date-fns'
 import updateExerciseTrack from '../../api/Exercise_Api/updateExerciseTrack';
 import "./exerciseTrack.css"
 let src = ""

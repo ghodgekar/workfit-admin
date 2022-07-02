@@ -22,6 +22,8 @@ const columns = [
     { name: "Holds", uid: "exercise_holds" },
     { name: "Sets", uid: "exercise_sets" },
     { name: "Rests", uid: "exercise_rests" },
+    { name: "Time", uid: "exercise_time" },
+    { name: "Multi-directional", uid: "isMultidirectional" },
     { name: "Body Part", uid: "body_part_name" },
     { name: "Instruction", uid: "instruction_name" },
     { name: "Video ", uid: "video_name" },
@@ -39,7 +41,10 @@ const getErrorObj = () => {
         "exercise_rests": { isError: false, msg: "Please Enter Exercise Rest" },
         "body_part_name": { isError: false, msg: "Please Select Body Part" },
         "instruction_name": { isError: false, msg: "Please Select A Instruction" },
-        "video_name": { isError: false, msg: "Please Select A Video" }
+        "video_name": { isError: false, msg: "Please Select A Video" },
+        "isMultidirectional": { isError: false, msg: "Please Select Multidirectional" },
+        "exercise_time": { isError: false, msg: "Please Enter Exercise Time" },
+        "isTimeControlled": { isError: false, msg: "Please Enter is Exercise Time Controlled" }
     }
     // let's copy all error properties into it
     for (let key in errorObject) {
@@ -57,10 +62,16 @@ const dataRefObj = {
     "body_part_name": "",
     "instruction_name": "",
     "video_name": "",
+    "isMultidirectional": 0,
+    "exercise_time": 0,
+    "isTimeControlled": 0,
     "errors": { ...err }
 }
 
 let defaultSelectedOption = { value: "", label: "" }
+
+let MultiDirectionOption = [{ value: 1, label: "Yes" }, { value: 0, label: "No" }]
+let TimeControlOption = [{ value: 1, label: "Yes" }, { value: 0, label: "No" }]
 
 export default function Exercise() {
     const [Data, setData] = useState([])
@@ -129,6 +140,49 @@ export default function Exercise() {
             return Array.from(SelectedVideo).join(", ").replaceAll("_", " ")
         },
         [SelectedVideo]
+    );
+
+
+    const [SelectedMultiDirection, setSelectedMultiDirection] = useState(new Set([]))
+
+    const selectedMultiDirectionValue = React.useMemo(
+        () => {
+            setdataObj(dataObj => {
+                return {
+                    ...dataObj,
+                    errors: {
+                        ...dataObj.errors,
+                        isMultidirectional: {
+                            ...dataObj.errors.isMultidirectional,
+                            isError: false
+                        }
+                    }
+                }
+            })
+            return Array.from(SelectedMultiDirection).join(", ").replaceAll("_", " ")
+        },
+        [SelectedMultiDirection]
+    );
+
+    const [SelectedTimeControl, setSelectedTimeControl] = useState(new Set([]))
+
+    const selectedTimeControlValue = React.useMemo(
+        () => {
+            setdataObj(dataObj => {
+                return {
+                    ...dataObj,
+                    errors: {
+                        ...dataObj.errors,
+                        isTimeControlled: {
+                            ...dataObj.errors.isTimeControlled,
+                            isError: false
+                        }
+                    }
+                }
+            })
+            return Array.from(SelectedTimeControl).join(", ").replaceAll("_", " ")
+        },
+        [SelectedTimeControl]
     );
 
     const InputArray = [
@@ -260,6 +314,48 @@ export default function Exercise() {
                 setselectedOption: setSelectedVideo,
                 errors: dataObj.errors.video_name
             }
+        ],
+        [
+            {
+                type: "dropdown",
+                label: "Is Time Controlled",
+                options: TimeControlOption,
+                selectedValue: selectedTimeControlValue,
+                selectionMode: "single",
+                selectedOption: SelectedTimeControl,
+                setselectedOption: setSelectedTimeControl,
+                errors: dataObj.errors.isTimeControlled
+            },
+            {
+                type: "text",
+                inputType: "number",
+                label: "Exercise Time",
+                value: dataObj.exercise_time,
+                placeholder: "Enter Exercise Time",
+                clearable: false,
+                onChange: (e) => {
+                    setdataObj(dataObj => {
+                        return {
+                            ...dataObj,
+                            exercise_time: e.target.value,
+                        }
+                    })
+                },
+                errors: dataObj.errors.exercise_time
+            }
+        ],
+
+        [
+            {
+                type: "dropdown",
+                label: "Is Multidirectional",
+                options: MultiDirectionOption,
+                selectedValue: selectedMultiDirectionValue,
+                selectionMode: "single",
+                selectedOption: SelectedMultiDirection,
+                setselectedOption: setSelectedMultiDirection,
+                errors: dataObj.errors.isMultidirectional
+            }
         ]
     ]
 
@@ -318,6 +414,8 @@ export default function Exercise() {
         setselectedInstOption(new Set([]))
         setSelectedBodyPartId(new Set([]))
         setSelectedVideo(new Set([]))
+        setSelectedTimeControl(new Set([]))
+        setSelectedMultiDirection(new Set([]))
     }
 
     const closeModalHandler = () => {
@@ -343,9 +441,12 @@ export default function Exercise() {
     }
 
     const openUpdateForm = (data) => {
+        console.log("update form", data)
         setselectedInstOption(new Set([data.instruction_name]))
         setSelectedBodyPartId(new Set([data.body_part_name]))
         setSelectedVideo(new Set([data.video_name]))
+        setSelectedMultiDirection(new Set([data.isMultidirectional ? "Yes" : "No"]))
+        setSelectedTimeControl(new Set([data.isTimeControlled ? "Yes" : "No"]))
         delete data.isActive;
         let errorObj = getErrorObj()
         data.errors = { ...errorObj };
@@ -367,7 +468,10 @@ export default function Exercise() {
                 "exercise_rests": parseInt(dataObj.exercise_rests),
                 "exercise_body_part_id": validate.bodyPartId,
                 "exercise_video_id": validate.videoId,
-                "exercise_instruction_id": validate.instructionId
+                "exercise_instruction_id": validate.instructionId,
+                "exercise_time": parseInt(dataObj.exercise_time),
+                "isMultidirectional": validate.MultiDirection,
+                "isTimeControlled": validate.isTimeControlled,
             }
 
             delete request.errors
@@ -401,7 +505,10 @@ export default function Exercise() {
         let instructionId = instructionIdObj.value
         let videoIdObj = selectedVideoValue ? videoOptions.find(o => o.label == selectedVideoValue) : "";
         let videoId = videoIdObj.value
-
+        let MultiDirectionObj = selectedMultiDirectionValue ? MultiDirectionOption.find(o => o.label == selectedMultiDirectionValue) : "";
+        let MultiDirection = MultiDirectionObj.value
+        let isTimeControlledObj = selectedTimeControlValue ? TimeControlOption.find(o => o.label == selectedTimeControlValue) : "";
+        let isTimeControlled = isTimeControlledObj.value
         let errObj = { ...errorObj }
         let isError = false
         if (!dataObj.exercise_name) {
@@ -428,7 +535,7 @@ export default function Exercise() {
                 }
             })
         }
-        return { noError: !isError, bodyPartId, instructionId, videoId }
+        return { noError: !isError, bodyPartId, instructionId, videoId, MultiDirection, isTimeControlled }
     }
 
     const renderCell = (data, columnKey) => {
@@ -470,6 +577,20 @@ export default function Exercise() {
                 return (
                     <Text size={12} css={{ tt: "capitalize", }} >
                         {data.exercise_rests}
+                    </Text>
+                )
+
+            case "exercise_time":
+                return (
+                    <Text size={12} css={{ tt: "capitalize", }} >
+                        {data.exercise_time}
+                    </Text>
+                )
+
+            case "isMultidirectional":
+                return (
+                    <Text size={12} css={{ tt: "capitalize", }} >
+                        {data.isMultidirectional ? "Yes" : "No"}
                     </Text>
                 )
 

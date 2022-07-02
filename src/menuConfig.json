@@ -74,7 +74,13 @@
         "redirect": "/subscription",
         "child": []
     },
-    
+    {
+        "id": "Scale",
+        "name": "Scale",
+        "icon": "fa fa-cog",
+        "redirect": "/scale",
+        "child": []
+    },
     
     {
         "id": "logout",
