@@ -1,4 +1,4 @@
 {
-  "backend_url" : "https://workfitt-api.herokuapp.com",
-  "Base_url" : "https://workfit-adminpanel.herokuapp.com/"
+  "backend_url": "https://workfitt-api.herokuapp.com",
+  "Base_url": "https://workfit-adminpanel.herokuapp.com/"
 }

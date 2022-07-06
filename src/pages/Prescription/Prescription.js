@@ -15,6 +15,8 @@ export default function Prescription() {
     const [descriptionModalData, setdescriptionModalData] = useState([])
     const [descriptionLang, setdescriptionLang] = useState("")
     const [showDescriptionModal, setshowDescriptionModal] = useState(false)
+    const [adviceData, setadviceData] = useState([])
+    const [scaleObj, setscaleObj] = useState({ scale_link: "" })
 
     useEffect(() => {
         async function fetchData() {
@@ -32,11 +34,29 @@ export default function Prescription() {
                     let adjunctArr = Object.values(adjunct);
                     setadjunctData(adjunctArr)
                 }
+                if (prescription.data[0].doctor_advice) {
+                    let advice = JSON.parse(prescription.data[0].doctor_advice)
+                    let adviceArr = Object.values(advice);
+                    setadviceData(adviceArr)
+                }
                 if (prescription.data[0].exercise_arr) {
                     let exercise = JSON.parse(prescription.data[0].exercise_arr)
                     let exerciseArr = Object.values(exercise);
                     console.log("exerciseArr", exerciseArr);
                     setexerciseData(exerciseArr)
+                }
+
+                if (prescription.data[0].scales_obj) {
+                    let scaleObject = JSON.parse(prescription.data[0].scales_obj)
+
+                    if (scaleObject.ScaleDays.includes(",")) {
+                        let daysArr = scaleObject.ScaleDays.split(",")
+                        let dayStr = daysArr.join(" & ")
+                        scaleObject.ScaleDays = dayStr
+                    }
+
+                    console.log("scaleObject", scaleObject)
+                    setscaleObj(scaleObject)
                 }
 
                 if (prescription.data[0].patient_obj) {
@@ -126,21 +146,41 @@ export default function Prescription() {
                         <p>C/O - {prescriptionData.prescription_c_o}</p>
                     </div>
 
-                    <div class="bodyElement">
-                        <p>Advice - {prescriptionData.doctor_advice}</p>
-                    </div>
+                    {adviceData && adviceData.length > 0 ?
+                        <div class="bodyElement">
+                            <div class="adjunct">
+                                <p>Advice -</p>
+                                <ul>
+                                    {adviceData.map((advice, key) => {
+                                        return (
+                                            <li class="adjunct_li" key={key}>
+                                                <div className="liElement">{key + 1}{".  "}{advice}</div>
+                                            </li>
+                                        )
+                                    }
+                                    )}
+                                </ul>
+                            </div>
+                        </div>
+                        :
+                        null
+                    }
+                    {prescriptionData.instruction_note ?
+                        <div class="bodyElement">
+                            <p>Instructions - {prescriptionData.instruction_note}</p>
+                        </div>
+                        :
+                        null
+                    }
 
-                    <div class="bodyElement">
-                        <p>Instructions - {prescriptionData.instruction_note}</p>
-                    </div>
-
+                    {adjunctData&&adjunctData.length>0 ?
                     <div class="bodyElement">
                         <div class="adjunct">
                             <p>Adjunct -</p>
                             <ul>
-                                {adjunctData.map((adj) => {
+                                {adjunctData.map((adj, key) => {
                                     return (
-                                        <li class="adjunct_li flexClass"> <div className="liElement">{adj.adjunct_name} {adj.adjunct_time ? " - " + adj.adjunct_time : ""}{" "}</div>
+                                        <li class="adjunct_li flexClass" key={key}> <div className="liElement">{key + 1}{".  "}{adj.adjunct_name} {adj.adjunct_time ? " - " + adj.adjunct_time : ""}{" "}</div>
                                             <div className="liElement">
                                                 <span className="instructionSpace" onClick={() => { viewDescriptionModal(adj.instruction_description_english, "English") }}>[Instruction English]</span>{" "}
                                                 <span className="instructionSpace" onClick={() => { viewDescriptionModal(adj.instruction_description_hindi, "Hindi") }}>[Instruction Hindi]</span>
@@ -153,13 +193,14 @@ export default function Prescription() {
                             </ul>
                         </div>
                     </div>
+                    :null}
 
                     <div class="bodyElement">
                         <h2 id="exerciseHead">Exercise Prescription</h2>
                         {exerciseData.map((exercise, key) => {
                             console.log("exercise", config.backend_url + exercise.audioFilePath)
                             let audioPath = config.backend_url + exercise.audioFilePath
-                            {/* audioPath = "/akshaynarkar31@gmail_com_push-ups_June_25_2022_audio.mp3" */}
+                            {/* audioPath = "/akshaynarkar31@gmail_com_push-ups_June_25_2022_audio.mp3" */ }
 
                             return (
                                 <div className="exercise" key={key}>
@@ -178,22 +219,28 @@ export default function Prescription() {
                                     <audio controls onPlay={() => { updateExercise(exercise, key) }}>
                                         <source src={audioPath} type="audio/mp3" />
                                     </audio>
+                                    {exercise.exercise_note ? 
+                                    <p><b>Special Note : </b>{exercise.exercise_note}</p>
+                                    :null}
                                 </div>
                             )
                         })}
 
                     </div>
-                    <div class="bodyElement">
-                        <p>Please Fill Out The form available on the link below after 5 and 15 days and send the reports to the
-                            therapist. Thankyou</p>
-                        <a href="http://"> abcd@gamail.com</a>
-                    </div>
+                    {scaleObj && scaleObj.scale_link ?
+                        <div class="bodyElement">
+                            <p>{`Please Fill Out The form available on the link below after ${scaleObj.ScaleDays} days and send the reports to the
+                                therapist. Thankyou`}</p>
+                            <a href={scaleObj.scale_link} target="_blank"> {scaleObj.scale_link}</a>
+                        </div>
+                        : null
+                    }
 
                     <div class="footer">
-                    <div></div>
-                    <div>
-                        <img src="/images/signature.jpg" alt="Sign" id="sign" />
-                        <h3 id="doctorName">Dr. Vedang Vaidya</h3>
+                        <div></div>
+                        <div>
+                            <img src="/images/signature.jpg" alt="Sign" id="sign" />
+                            <h3 id="doctorName">Dr. Vedang Vaidya</h3>
                         </div>
                     </div>
                 </div>
