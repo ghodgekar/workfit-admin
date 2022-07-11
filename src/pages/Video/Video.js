@@ -16,7 +16,7 @@ import IframeDemo from '../../component/Modal/IframeDemo';
 
 
 const columns = [
-    { name: "Video Iframe", uid: "video_iframe" },
+    { name: "Video", uid: "video_youtube_id" },
     { name: "Video Name", uid: "video_name" },
     { name: "Video Type", uid: "video_type" },
     { name: "STATUS", uid: "status" },
@@ -24,14 +24,14 @@ const columns = [
 ];
 
 const errors = {
-    "video_iframe": { isError: false, msg: "Please Enter Video Iframe" },
+    "video_youtube_id": { isError: false, msg: "Please Enter Video Id" },
     "video_name": { isError: false, msg: "Please Enter Video Name" },
     "video_type": { isError: false, msg: "Please Select A Video Type" }
 }
 const getErrorObj = () => {
     let clone = {}; // the new empty object
     let errorObject = {
-        "video_iframe": { isError: false, msg: "Please Enter Video Iframe" },
+        "video_youtube_id": { isError: false, msg: "Please Enter Video Iframe" },
         "video_name": { isError: false, msg: "Please Enter Video Name" },
         "video_type": { isError: false, msg: "Please Select A Video Type" }
     }
@@ -43,7 +43,7 @@ const getErrorObj = () => {
 }
 let err = getErrorObj()
 const dataRefObj = {
-    "video_iframe": '',
+    "video_youtube_id": '',
     "video_name": "",
     "video_type": "",
     "errors": { ...err }
@@ -62,7 +62,7 @@ export default function Video() {
     const [SelectedVideoType, setSelectedVideoType] = useState(new Set([]))
 
     const [showIframeModal, setshowIframeModal] = useState(false)
-    const [iframe, setiframe] = useState('')
+    const [videoYoutubeId, setvideoYoutubeId] = useState('')
 
 
 
@@ -109,26 +109,27 @@ export default function Video() {
         ],
         [
             {
-                type: "textarea",
-                label: "Video Iframe",
-                value: dataObj.video_iframe,
-                placeholder: "Enter Video Iframe",
+                type: "text",
+                inputType: "text",
+                label: "Video ID",
+                value: dataObj.video_youtube_id,
+                placeholder: "Enter Video ID",
                 onChange: (e) => {
                     setdataObj(dataObj => {
                         return {
                             ...dataObj,
-                            video_iframe: e.target.value,
+                            video_youtube_id: e.target.value,
                             errors: {
                                 ...dataObj.errors,
-                                video_iframe: {
-                                    ...dataObj.errors.video_iframe,
+                                video_youtube_id: {
+                                    ...dataObj.errors.video_youtube_id,
                                     isError: false
                                 }
                             }
                         }
                     })
                 },
-                errors: dataObj.errors.video_iframe
+                errors: dataObj.errors.video_youtube_id
             }
 
         ]
@@ -210,12 +211,11 @@ export default function Video() {
             let request = {
                 ...dataObj,
             };
-            console.log("request------------------", request.video_iframe);
+            console.log("request------------------", request.video_youtube_id);
             console.log("split");
-            let videoIframe = await processIframe(request.video_iframe)
+            // let videoIframe = await processIframe(request.video_iframe)
 
             request.video_type = validate.videoType
-            request.video_iframe = videoIframe
 
             delete request.errors
             if (type == "add") {
@@ -292,6 +292,14 @@ export default function Video() {
         return { noError: !isError, videoType }
     }
 
+    function onPlayerReady(event) {
+        console.log("event target", event.target);
+        event.target.mute();
+        event.target.playVideo();
+        // event.target.setLoop(100)
+
+    }
+
 
     const renderCell = (data, columnKey) => {
         // console.log({data});
@@ -307,9 +315,9 @@ export default function Video() {
                     </Text>
                 );
 
-            case "video_iframe":
+            case "video_youtube_id":
                 return (
-                    <Text b size={12} css={{ tt: "capitalize", color: "$blue500", }} onClick={() => { setiframe(data.video_iframe); setshowIframeModal(true) }}>
+                    <Text b size={12} css={{ tt: "capitalize", color: "$blue500", }} onClick={() => {setvideoYoutubeId(data.video_youtube_id); setshowIframeModal(true) }}>
                         View
                     </Text>
                 )
@@ -386,8 +394,9 @@ export default function Video() {
             {showIframeModal &&
                 <IframeDemo
                     showIframeModal={showIframeModal}
-                    iframe={iframe}
-                    title={"Video Iframe Demo"}
+                    videoId={videoYoutubeId}
+                    title={"Video Demo"}
+                    onPlayerReady={onPlayerReady}
                     setshowIframeModal={setshowIframeModal}
                 />
             }

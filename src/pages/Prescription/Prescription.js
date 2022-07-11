@@ -5,6 +5,7 @@ import DescriptionModal from "../../component/Modal/InstructionModal/Description
 import "./prescription.css"
 import updateExerciseTrack from "../../api/Exercise_Api/updateExerciseTrack";
 import { format } from "date-fns";
+import YouTube from 'react-youtube';
 
 export default function Prescription() {
     const [isLoading, setisLoading] = useState(true)
@@ -120,6 +121,14 @@ export default function Prescription() {
         })
     }
 
+    function onPlayerReady(event) {
+        console.log("event target", event.target);
+        event.target.mute();
+        event.target.playVideo();
+        // event.target.setLoop(100)
+
+    }
+
 
 
     return (
@@ -173,27 +182,27 @@ export default function Prescription() {
                         null
                     }
 
-                    {adjunctData&&adjunctData.length>0 ?
-                    <div class="bodyElement">
-                        <div class="adjunct">
-                            <p>Adjunct -</p>
-                            <ul>
-                                {adjunctData.map((adj, key) => {
-                                    return (
-                                        <li class="adjunct_li flexClass" key={key}> <div className="liElement">{key + 1}{".  "}{adj.adjunct_name} {adj.adjunct_time ? " - " + adj.adjunct_time : ""}{" "}</div>
-                                            <div className="liElement">
-                                                <span className="instructionSpace" onClick={() => { viewDescriptionModal(adj.instruction_description_english, "English") }}>[Instruction English]</span>{" "}
-                                                <span className="instructionSpace" onClick={() => { viewDescriptionModal(adj.instruction_description_hindi, "Hindi") }}>[Instruction Hindi]</span>
-                                            </div>
-                                        </li>
-                                    )
-                                }
+                    {adjunctData && adjunctData.length > 0 ?
+                        <div class="bodyElement">
+                            <div class="adjunct">
+                                <p>Adjunct -</p>
+                                <ul>
+                                    {adjunctData.map((adj, key) => {
+                                        return (
+                                            <li class="adjunct_li flexClass" key={key}> <div className="liElement">{key + 1}{".  "}{adj.adjunct_name} {adj.adjunct_time ? " - " + adj.adjunct_time : ""}{" "}</div>
+                                                <div className="liElement">
+                                                    <span className="instructionSpace" onClick={() => { viewDescriptionModal(adj.instruction_description_english, "English") }}>[Instruction English]</span>{" "}
+                                                    <span className="instructionSpace" onClick={() => { viewDescriptionModal(adj.instruction_description_hindi, "Hindi") }}>[Instruction Hindi]</span>
+                                                </div>
+                                            </li>
+                                        )
+                                    }
 
-                                )}
-                            </ul>
+                                    )}
+                                </ul>
+                            </div>
                         </div>
-                    </div>
-                    :null}
+                        : null}
 
                     <div class="bodyElement">
                         <h2 id="exerciseHead">Exercise Prescription</h2>
@@ -205,7 +214,30 @@ export default function Prescription() {
                             return (
                                 <div className="exercise" key={key}>
                                     {exercise.showVideo ?
-                                        <div className="exercise_video" dangerouslySetInnerHTML={{ __html: exercise.videoObj.video_iframe }} style={{ position: "relative" }}></div>
+                                        <>
+                                            {/* <div className="exercise_video" dangerouslySetInnerHTML={{ __html: exercise.videoObj.video_iframe }} style={{ position: "relative" }}></div> */}
+                                            <YouTube
+                                                videoId={exercise.videoObj.video_youtube_id}               
+                                                className="exercise_video"          
+                                                style={{ position: "relative" }}     
+                                                opts={{
+                                                    "height": '175',
+                                                    "width": '301',
+                                                    "playerVars": {
+                                                        // https://developers.google.com/youtube/player_parameters
+                                                        "autoplay": 1,
+                                                        "loop": 1,
+                                                        "controls": 0,
+                                                        "disablekb": 1,
+                                                        "modestbranding": 1,
+                                                        "playsinline": 1,
+                                                        "rel": 0
+                                                    },
+                                                }}
+                                                onReady={(e) => { onPlayerReady(e) }}
+                                                onEnd={(e)=>{ e.target.playVideo();}}          
+                                            />
+                                        </>
                                         : null
                                     }
                                     <div className="flexClass exercise_heading">
@@ -219,9 +251,9 @@ export default function Prescription() {
                                     <audio controls onPlay={() => { updateExercise(exercise, key) }}>
                                         <source src={audioPath} type="audio/mp3" />
                                     </audio>
-                                    {exercise.exercise_note ? 
-                                    <p><b>Special Note : </b>{exercise.exercise_note}</p>
-                                    :null}
+                                    {exercise.exercise_note ?
+                                        <p><b>Special Note : </b>{exercise.exercise_note}</p>
+                                        : null}
                                 </div>
                             )
                         })}
