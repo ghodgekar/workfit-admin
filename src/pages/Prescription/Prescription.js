@@ -1,11 +1,14 @@
 import config from "../../config/config.json";
 import React, { useEffect, useState } from 'react'
 import getPrescriptionById from '../../api/Prescription_Api/getPrescriptionById'
+// import getGeneralInstruction from '../../api/Prescription_Api/getGeneralInstruction'
+
 import DescriptionModal from "../../component/Modal/InstructionModal/DescriptionModal";
 import "./prescription.css"
 import updateExerciseTrack from "../../api/Exercise_Api/updateExerciseTrack";
 import { format } from "date-fns";
 import YouTube from 'react-youtube';
+import doctorById from "../../api/Doctor_Api/getDoctorById";
 
 export default function Prescription() {
     const [isLoading, setisLoading] = useState(true)
@@ -18,6 +21,7 @@ export default function Prescription() {
     const [showDescriptionModal, setshowDescriptionModal] = useState(false)
     const [adviceData, setadviceData] = useState([])
     const [scaleObj, setscaleObj] = useState({ scale_link: "" })
+    const [doctorObj, setdoctorObj] = useState("")
 
     useEffect(() => {
         async function fetchData() {
@@ -30,6 +34,11 @@ export default function Prescription() {
             console.log("prescription", prescription.data[0]);
             if (prescription.status) {
                 setprescriptionData(prescription.data[0])
+                if(prescription.data[0].doctor_id){
+                    let doctorObject=await doctorById({doctor_id:prescription.data[0].doctor_id})
+                    console.log("doctorObject",doctorObject.data);
+                    setdoctorObj(doctorObject.data)
+                }
                 if (prescription.data[0].adjunct) {
                     let adjunct = JSON.parse(prescription.data[0].adjunct)
                     let adjunctArr = Object.values(adjunct);
@@ -133,150 +142,165 @@ export default function Prescription() {
 
     return (
         <>
-            {/* Description Modal */}
-            {showDescriptionModal &&
-                <DescriptionModal
-                    descriptionLang={descriptionLang}
-                    descriptionModalData={descriptionModalData}
-                    setshowDescriptionModal={setshowDescriptionModal}
-                    showDescriptionModal={showDescriptionModal}
-                />
-            }
-            {/* Description Modal */}
-            <div className='emailTemplate'>
-                <div class="flexClass templateHead">
-                    <img src="/images/logo.png" id="doctor_logo" />
-                    <h5 id="poweredText">Powered By WorkFitt</h5>
-                </div>
-                <div class="prescriptionBody">
-                    <div class="bodyElement">
-                        <p>Name - {patientData.patient_name}</p>
-                        <p> {patientData.patient_age}/{patientData.patient_gender}</p>
-                        <p>C/O - {prescriptionData.prescription_c_o}</p>
-                    </div>
-
-                    {adviceData && adviceData.length > 0 ?
-                        <div class="bodyElement">
-                            <div class="adjunct">
-                                <p>Advice -</p>
-                                <ul>
-                                    {adviceData.map((advice, key) => {
-                                        return (
-                                            <li class="adjunct_li" key={key}>
-                                                <div className="liElement">{key + 1}{".  "}{advice}</div>
-                                            </li>
-                                        )
-                                    }
-                                    )}
-                                </ul>
+            {prescriptionData&&doctorObj
+            ?
+                <>
+                    {/* Description Modal */}
+                    {showDescriptionModal &&
+                        <DescriptionModal
+                            descriptionLang={descriptionLang}
+                            descriptionModalData={descriptionModalData}
+                            setshowDescriptionModal={setshowDescriptionModal}
+                            showDescriptionModal={showDescriptionModal}
+                        />
+                    }
+                    {/* Description Modal */}
+                    <div className='emailTemplate'>
+                        <div className="poweredText">
+                            <h5 id="poweredText">Powered By WorkFitt</h5>
+                        </div>
+                        <div class="flexClass templateHead">
+                            <img  src={config.backend_url + doctorObj.doctor_logo} id="doctor_logo" />
+                            <div className="seprator" style={{"color":"#665e5e"}}></div>
+                            <div className="doctor_details">
+                                <h1 className="doctor_name_top">{prescriptionData.doctor_name}</h1>
+                                <p>{prescriptionData.doctor_address}</p>
+                                <p>Cell: {prescriptionData.doctor_mobile} </p>  
+                                <p>Email: {prescriptionData.doctor_email}</p>
                             </div>
                         </div>
-                        :
-                        null
-                    }
-                    {prescriptionData.instruction_note ?
-                        <div class="bodyElement">
-                            <p>Instructions - {prescriptionData.instruction_note}</p>
-                        </div>
-                        :
-                        null
-                    }
-
-                    {adjunctData && adjunctData.length > 0 ?
-                        <div class="bodyElement">
-                            <div class="adjunct">
-                                <p>Adjunct -</p>
-                                <ul>
-                                    {adjunctData.map((adj, key) => {
-                                        return (
-                                            <li class="adjunct_li flexClass" key={key}> <div className="liElement">{key + 1}{".  "}{adj.adjunct_name} {adj.adjunct_time ? " - " + adj.adjunct_time : ""}{" "}</div>
-                                                <div className="liElement">
-                                                    <span className="instructionSpace" onClick={() => { viewDescriptionModal(adj.instruction_description_english, "English") }}>[Instruction English]</span>{" "}
-                                                    <span className="instructionSpace" onClick={() => { viewDescriptionModal(adj.instruction_description_hindi, "Hindi") }}>[Instruction Hindi]</span>
-                                                </div>
-                                            </li>
-                                        )
-                                    }
-
-                                    )}
-                                </ul>
+                        <div class="prescriptionBody">
+                            <div class="bodyElement">
+                                <p>{patientData.patient_name}</p>
+                                <p>{patientData.patient_age}/{patientData.patient_gender}</p>
+                                <p>C/O - {prescriptionData.prescription_c_o}</p>
                             </div>
-                        </div>
-                        : null}
 
-                    <div class="bodyElement">
-                        <h2 id="exerciseHead">Exercise Prescription</h2>
-                        {exerciseData.map((exercise, key) => {
-                            console.log("exercise", config.backend_url + exercise.audioFilePath)
-                            let audioPath = config.backend_url + exercise.audioFilePath
-                            {/* audioPath = "/akshaynarkar31@gmail_com_push-ups_June_25_2022_audio.mp3" */ }
-
-                            return (
-                                <div className="exercise" key={key}>
-                                    {exercise.showVideo ?
-                                        <>
-                                            {/* <div className="exercise_video" dangerouslySetInnerHTML={{ __html: exercise.videoObj.video_iframe }} style={{ position: "relative" }}></div> */}
-                                            <YouTube
-                                                videoId={exercise.videoObj.video_youtube_id}               
-                                                className="exercise_video"          
-                                                style={{ position: "relative" }}     
-                                                opts={{
-                                                    "height": '175',
-                                                    "width": '301',
-                                                    "playerVars": {
-                                                        // https://developers.google.com/youtube/player_parameters
-                                                        "autoplay": 1,
-                                                        "loop": 1,
-                                                        "controls": 0,
-                                                        "disablekb": 1,
-                                                        "modestbranding": 1,
-                                                        "playsinline": 1,
-                                                        "rel": 0
-                                                    },
-                                                }}
-                                                onReady={(e) => { onPlayerReady(e) }}
-                                                onEnd={(e)=>{ e.target.playVideo();}}          
-                                            />
-                                        </>
-                                        : null
-                                    }
-                                    <div className="flexClass exercise_heading">
-                                        <h5> {key + 1}{") "} {exercise.exercise_name}</h5> {" "}
-                                        <div className="instContainer">
-                                            <span className="instructionSpace" onClick={() => { toggleVideoDemo(exercise, key) }}>[Demo Movement]</span> {" "}
-                                            <span className="instructionSpace" onClick={() => { viewDescriptionModal(exercise.instructionObj.instruction_description_english, "English") }}>[Instruction English]</span> {" "}
-                                            <span className="instructionSpace" onClick={() => { viewDescriptionModal(exercise.instructionObj.instruction_description_hindi, "Hindi") }}>[Instruction Hindi]</span>
-                                        </div>
+                            {adviceData && adviceData.length > 0 ?
+                                <div class="bodyElement">
+                                    <div class="adjunct">
+                                        <p>Advice -</p>
+                                        <ul>
+                                            {adviceData.map((advice, key) => {
+                                                return (
+                                                    <li class="adjunct_li" key={key}>
+                                                        <div className="liElement">{key + 1}{".  "}{advice}</div>
+                                                    </li>
+                                                )
+                                            }
+                                            )}
+                                        </ul>
                                     </div>
-                                    <audio controls onPlay={() => { updateExercise(exercise, key) }}>
-                                        <source src={audioPath} type="audio/mp3" />
-                                    </audio>
-                                    {exercise.exercise_note ?
-                                        <p><b>Special Note : </b>{exercise.exercise_note}</p>
-                                        : null}
                                 </div>
-                            )
-                        })}
+                                :
+                                null
+                            }
+                            {prescriptionData.instruction_note ?
+                                <div class="bodyElement">
+                                    <p>Instructions - {prescriptionData.instruction_note}</p>
+                                </div>
+                                :
+                                null
+                            }
 
-                    </div>
-                    {scaleObj && scaleObj.scale_link ?
-                        <div class="bodyElement">
-                            <p>{`Please Fill Out The form available on the link below after ${scaleObj.ScaleDays} days and send the reports to the
+                            {adjunctData && adjunctData.length > 0 ?
+                                <div class="bodyElement">
+                                    <div class="adjunct">
+                                        <p>Adjunct -</p>
+                                        <ul>
+                                            {adjunctData.map((adj, key) => {
+                                                return (
+                                                    <li class="adjunct_li flexClass" key={key}> <div className="liElement">{key + 1}{".  "}{adj.adjunct_name} {adj.adjunct_time ? " - " + adj.adjunct_time : ""}{" "}</div>
+                                                        <div className="liElement">
+                                                            <span className="instructionSpace" onClick={() => { viewDescriptionModal(adj.instruction_description_english, "English") }}>[Instruction English]</span>{" "}
+                                                            <span className="instructionSpace" onClick={() => { viewDescriptionModal(adj.instruction_description_hindi, "Hindi") }}>[Instruction Hindi]</span>
+                                                        </div>
+                                                    </li>
+                                                )
+                                            }
+
+                                            )}
+                                        </ul>
+                                    </div>
+                                </div>
+                                : null}
+
+                            <div class="bodyElement">
+                                <h2 id="exerciseHead">Exercise Prescription</h2>
+                                {exerciseData.map((exercise, key) => {
+                                    console.log("exercise", config.backend_url + exercise.audioFilePath)
+                                    let audioPath = config.backend_url + exercise.audioFilePath
+                                    {/* audioPath = "/akshaynarkar31@gmail_com_push-ups_June_25_2022_audio.mp3" */ }
+
+                                    return (
+                                        <div className="exercise" key={key}>
+                                            {exercise.showVideo ?
+                                                <>
+                                                    {/* <div className="exercise_video" dangerouslySetInnerHTML={{ __html: exercise.videoObj.video_iframe }} style={{ position: "relative" }}></div> */}
+                                                    <YouTube
+                                                        videoId={exercise.videoObj.video_youtube_id}
+                                                        className="exercise_video"
+                                                        style={{ position: "relative" }}
+                                                        opts={{
+                                                            "height": '175',
+                                                            "width": '301',
+                                                            "playerVars": {
+                                                                // https://developers.google.com/youtube/player_parameters
+                                                                "autoplay": 1,
+                                                                "loop": 1,
+                                                                "controls": 0,
+                                                                "disablekb": 1,
+                                                                "modestbranding": 1,
+                                                                "playsinline": 1,
+                                                                "rel": 0
+                                                            },
+                                                        }}
+                                                        onReady={(e) => { onPlayerReady(e) }}
+                                                        onEnd={(e) => { e.target.playVideo(); }}
+                                                    />
+                                                </>
+                                                : null
+                                            }
+                                            <div className="flexClass exercise_heading">
+                                                <h5> {key + 1}{") "} {exercise.exercise_name}</h5> {" "}
+                                                <div className="instContainer">
+                                                    <span className="instructionSpace" onClick={() => { toggleVideoDemo(exercise, key) }}>[Demo Movement]</span> {" "}
+                                                    <span className="instructionSpace" onClick={() => { viewDescriptionModal(exercise.instructionObj.instruction_description_english, "English") }}>[Instruction English]</span> {" "}
+                                                    <span className="instructionSpace" onClick={() => { viewDescriptionModal(exercise.instructionObj.instruction_description_hindi, "Hindi") }}>[Instruction Hindi]</span>
+                                                </div>
+                                            </div>
+                                            <audio controls onPlay={() => { updateExercise(exercise, key) }}>
+                                                <source src={audioPath} type="audio/mp3" />
+                                            </audio>
+                                            {exercise.exercise_note ?
+                                                <p><b>Special Note : </b>{exercise.exercise_note}</p>
+                                                : null}
+                                        </div>
+                                    )
+                                })}
+
+                            </div>
+                            {scaleObj && scaleObj.scale_link ?
+                                <div class="bodyElement">
+                                    <p>{`Please Fill Out The form available on the link below after ${scaleObj.ScaleDays} days and send the reports to the
                                 therapist. Thankyou`}</p>
-                            <a href={scaleObj.scale_link} target="_blank"> {scaleObj.scale_link}</a>
-                        </div>
-                        : null
-                    }
+                                    <a href={scaleObj.scale_link} target="_blank"> {scaleObj.scale_link}</a>
+                                </div>
+                                : null
+                            }
 
-                    <div class="footer">
-                        <div></div>
-                        <div>
-                            <img src="/images/signature.jpg" alt="Sign" id="sign" />
-                            <h3 id="doctorName">Dr. Vedang Vaidya</h3>
+                            <div class="footer">
+                                <div></div>
+                                <div>
+                                    <img src={config.backend_url + doctorObj.doctor_sign} alt="Sign" id="sign" />
+                                    <h3 id="doctorName">{prescriptionData.doctor_name}</h3>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
+                </>
+                :null
+            }
         </>
     )
 }
