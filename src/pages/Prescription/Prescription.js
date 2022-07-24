@@ -9,6 +9,8 @@ import updateExerciseTrack from "../../api/Exercise_Api/updateExerciseTrack";
 import { format } from "date-fns";
 import YouTube from 'react-youtube';
 import doctorById from "../../api/Doctor_Api/getDoctorById";
+import getGeneralInstruction from "../../api/Instruction_Api/getGeneralInstruction";
+import GeneralInstModal from "../../component/Modal/InstructionModal/GeneralInstModal";
 
 export default function Prescription() {
     const [isLoading, setisLoading] = useState(true)
@@ -22,26 +24,49 @@ export default function Prescription() {
     const [adviceData, setadviceData] = useState([])
     const [scaleObj, setscaleObj] = useState({ scale_link: "" })
     const [doctorObj, setdoctorObj] = useState("")
+    const [generalInst, setgeneralInst] = useState()
+    const [showGeneralInstModal, setshowGeneralInstModal] = useState(false)
+    const [isMobile, setisMobile] = useState(false)
+
+    useEffect(() => {
+        const windowWidth=window.screen.availWidth
+        if(windowWidth<=468){
+            setisMobile(true)
+        }
+    }, [window.screen.availWidth])
+    
 
     useEffect(() => {
         async function fetchData() {
             setisLoading(true)
             const url = new URL(window.location.href);
-
+            
             let params = new URLSearchParams(url.search)
-            console.log("params", parseInt(params.get("prescription_id"), 10));
+            // console.log("params", parseInt(params.get("prescription_id"), 10));
             let prescription = await getPrescriptionById({ id: parseInt(params.get("prescription_id")) })
+            let requestBody = {
+                type: "exercise",
+                instruction_id: config.general_inst_id
+            }
+            let generalInstResp = await getGeneralInstruction(requestBody)
+            if (generalInstResp.status) {
+                
+                viewGeneralInstModal(generalInstResp.data[0])
+            }
+            console.log("generalInstResp", generalInstResp);
+
             console.log("prescription", prescription.data[0]);
             if (prescription.status) {
                 setprescriptionData(prescription.data[0])
-                if(prescription.data[0].doctor_id){
-                    let doctorObject=await doctorById({doctor_id:prescription.data[0].doctor_id})
-                    console.log("doctorObject",doctorObject.data);
+                if (prescription.data[0].doctor_id) {
+                    let doctorObject = await doctorById({ doctor_id: prescription.data[0].doctor_id })
+                    // console.log("doctorObject", doctorObject.data);
                     setdoctorObj(doctorObject.data)
                 }
                 if (prescription.data[0].adjunct) {
                     let adjunct = JSON.parse(prescription.data[0].adjunct)
                     let adjunctArr = Object.values(adjunct);
+                    // console.log("adjunctArr", parseInt(adjunctArr[0].adjunct_time));
                     setadjunctData(adjunctArr)
                 }
                 if (prescription.data[0].doctor_advice) {
@@ -98,6 +123,16 @@ export default function Prescription() {
 
     }
 
+    async function viewGeneralInstModal(instObj) {
+        
+        instObj.descriptionEnglish = await convertDescObj(instObj.instruction_description_english)
+            
+        instObj.descriptionHindi = await convertDescObj(instObj.instruction_description_hindi)
+        
+        setgeneralInst(instObj)
+        setshowGeneralInstModal(true)
+    }
+
     async function updateExercise(exe, index) {
         if (!exerciseData[index].isCompleted) {
             // console.log("i am heree", exerciseData[index], exe);
@@ -134,16 +169,13 @@ export default function Prescription() {
         console.log("event target", event.target);
         event.target.mute();
         event.target.playVideo();
-        // event.target.setLoop(100)
-
     }
 
 
 
     return (
         <>
-            {prescriptionData&&doctorObj
-            ?
+            {prescriptionData && doctorObj ?
                 <>
                     {/* Description Modal */}
                     {showDescriptionModal &&
@@ -155,31 +187,42 @@ export default function Prescription() {
                         />
                     }
                     {/* Description Modal */}
+                    {showGeneralInstModal &&
+                        <GeneralInstModal
+                        isMobile={isMobile}
+                            descriptionLang={"English"}
+                            descriptionEnglish={generalInst.descriptionEnglish}
+                            descriptionHindi={generalInst.descriptionHindi}
+                            setshowGeneralInstModal={setshowGeneralInstModal}
+                            showGeneralInstModal={showGeneralInstModal}
+                        />
+                    }
                     <div className='emailTemplate'>
                         <div className="poweredText">
                             <h5 id="poweredText">Powered By WorkFitt</h5>
                         </div>
                         <div class="flexClass templateHead">
-                            <img  src={config.backend_url + doctorObj.doctor_logo} id="doctor_logo" />
-                            <div className="seprator" style={{"color":"#665e5e"}}></div>
+                            <img src={config.backend_url + doctorObj.doctor_logo} id="doctor_logo" />
+                            <div className="seprator" style={{ "color": "#665e5e" }}></div>
                             <div className="doctor_details">
                                 <h1 className="doctor_name_top">{prescriptionData.doctor_name}</h1>
                                 <p>{prescriptionData.doctor_address}</p>
-                                <p>Cell: {prescriptionData.doctor_mobile} </p>  
+                                <p>Cell: {prescriptionData.doctor_mobile} </p>
                                 <p>Email: {prescriptionData.doctor_email}</p>
                             </div>
                         </div>
                         <div class="prescriptionBody">
                             <div class="bodyElement">
-                                <p>{patientData.patient_name}</p>
-                                <p>{patientData.patient_age}/{patientData.patient_gender}</p>
-                                <p>C/O - {prescriptionData.prescription_c_o}</p>
+                                <p><b>Name</b> - {patientData.patient_name}</p>
+                                <p><b>Age</b> - {patientData.patient_age}</p>
+                                <p><b>Gender</b> - {patientData.patient_gender}</p>
+                                <p><b>C/O </b>- {prescriptionData.prescription_c_o}</p>
                             </div>
 
                             {adviceData && adviceData.length > 0 ?
                                 <div class="bodyElement">
                                     <div class="adjunct">
-                                        <p>Advice -</p>
+                                        <p><b>Advice</b> -</p>
                                         <ul>
                                             {adviceData.map((advice, key) => {
                                                 return (
@@ -197,7 +240,14 @@ export default function Prescription() {
                             }
                             {prescriptionData.instruction_note ?
                                 <div class="bodyElement">
-                                    <p>Instructions - {prescriptionData.instruction_note}</p>
+                                    <p><b>Instructions</b> - {prescriptionData.instruction_note}</p>
+                                </div>
+                                :
+                                null
+                            }
+                            {prescriptionData.doctor_note ?
+                                <div class="bodyElement">
+                                    <p><b>Doctor Note</b> - {prescriptionData.doctor_note}</p>
                                 </div>
                                 :
                                 null
@@ -206,11 +256,11 @@ export default function Prescription() {
                             {adjunctData && adjunctData.length > 0 ?
                                 <div class="bodyElement">
                                     <div class="adjunct">
-                                        <p>Adjunct -</p>
+                                        <p><b>Adjunct</b> -</p>
                                         <ul>
                                             {adjunctData.map((adj, key) => {
                                                 return (
-                                                    <li class="adjunct_li flexClass" key={key}> <div className="liElement">{key + 1}{".  "}{adj.adjunct_name} {adj.adjunct_time ? " - " + adj.adjunct_time : ""}{" "}</div>
+                                                    <li class="adjunct_li flexClass" key={key}> <div className="liElement">{key + 1}{".  "}{adj.adjunct_name} {adj.adjunct_time && parseInt(adj.adjunct_time) ? " - " + adj.adjunct_time : ""}{" "}</div>
                                                         <div className="liElement">
                                                             <span className="instructionSpace" onClick={() => { viewDescriptionModal(adj.instruction_description_english, "English") }}>[Instruction English]</span>{" "}
                                                             <span className="instructionSpace" onClick={() => { viewDescriptionModal(adj.instruction_description_hindi, "Hindi") }}>[Instruction Hindi]</span>
@@ -228,7 +278,7 @@ export default function Prescription() {
                             <div class="bodyElement">
                                 <h2 id="exerciseHead">Exercise Prescription</h2>
                                 {exerciseData.map((exercise, key) => {
-                                    console.log("exercise", config.backend_url + exercise.audioFilePath)
+                                 {/* console.log("exercise", exercise)  */}
                                     let audioPath = config.backend_url + exercise.audioFilePath
                                     {/* audioPath = "/akshaynarkar31@gmail_com_push-ups_June_25_2022_audio.mp3" */ }
 
@@ -269,6 +319,7 @@ export default function Prescription() {
                                                     <span className="instructionSpace" onClick={() => { viewDescriptionModal(exercise.instructionObj.instruction_description_hindi, "Hindi") }}>[Instruction Hindi]</span>
                                                 </div>
                                             </div>
+                                            <div><b>{exercise.exercise_reps ? `${exercise.exercise_reps} Reps ` : ""} {exercise.exercise_holds ? `x ${exercise.exercise_holds} Holds ` : ""} {exercise.exercise_rests ? `x ${exercise.exercise_rests} Rests ` : ""} {exercise.exercise_sets ? `x ${exercise.exercise_sets} Sets ` : ""} {exercise.exercise_time ? `x ${exercise.exercise_time} Seconds ` : ""}</b></div>
                                             <audio controls onPlay={() => { updateExercise(exercise, key) }}>
                                                 <source src={audioPath} type="audio/mp3" />
                                             </audio>
@@ -299,7 +350,7 @@ export default function Prescription() {
                         </div>
                     </div>
                 </>
-                :null
+                : null
             }
         </>
     )

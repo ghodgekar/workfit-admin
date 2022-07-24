@@ -10,13 +10,6 @@
 }
 
 
-
-#doctor_logo {
-    /* width: 70%; */
-    width: 20%;
-    height: 135px;
-}
-
 .doctor_name_top{
     color: #665e5e;
     font-size: 30px;
@@ -58,8 +51,8 @@ li.adjunct_li {
 }
 
 #sign {
-    width: 200px;
-    height: 80px;
+    max-width: 160px;
+    max-height: 80px;
 }
 
 #doctorName {
@@ -84,12 +77,12 @@ li.adjunct_li {
 }
 
 .exercise_video iframe {
-    height: 175px;
-    width: 301px;
-    z-index: 1;
-    position: absolute;
     bottom: 5px;
+    height: 240px;
     pointer-events: none;
+    position: absolute;
+    width: 365px;
+    z-index: 1;
 }
 
 .exercise_heading {
@@ -118,6 +111,10 @@ li.adjunct_li {
     font-size: 16px;
 }
 
+#doctor_logo {
+    max-width: 260px;
+    max-height: 100px;
+}
 
 @media only screen and (max-width: 988px) {
     .emailTemplate{
@@ -151,12 +148,14 @@ li.adjunct_li {
         font-size: 20px;
     }
     #doctor_logo {
-        height: 100px;
+        max-width: 260px;
+        max-height: 100px;
     }
     .poweredText {
         margin-bottom: -10px;
     }
 }
+
 
 @media only screen and (max-width: 768px) {
     #poweredText {
@@ -219,7 +218,8 @@ li.adjunct_li {
         font-size: 20px;
     }
     #doctor_logo {
-        height: 100px;
+        max-width: 260px;
+        max-height: 100px;
     }
     .poweredText {
         margin-bottom: -10px;

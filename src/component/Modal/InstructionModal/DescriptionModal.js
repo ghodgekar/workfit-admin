@@ -9,6 +9,7 @@ export default function DescriptionModal(props) {
     return (
         <div>
             <Modal
+                width='900px'
                 closeButton
                 blur
                 aria-labelledby="modal-title"
